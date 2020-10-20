@@ -82,6 +82,7 @@ class EditorController {
       _syncStrokeCount = 0;
       print('syncPointerEvent-----------------截取');
     }
+    print('_methodChannel.toString() = ${_methodChannel.toString()}');
     await _methodChannel.invokeMethod('syncPointerEvent', pointerEvent.toMap());
   }
 
@@ -103,6 +104,7 @@ class EditorController {
       }
       list.add(pointerEvent.toMap());
     });
+    print('syncPointerEvents list = ${list}');
     await _methodChannel.invokeMethod('syncPointerEvents', list);
   }
 
@@ -220,22 +222,23 @@ class EditorController {
   }
 
   Future<void> clear() async {
-    return await _methodChannel.invokeMethod('clear');
+    print('000009294u21938');
+    await _methodChannel.invokeMethod('clear');
   }
 
-  Future<bool>canUndo() async {
+  Future<bool> canUndo() async {
     return await _methodChannel.invokeMethod('canUndo');
   }
 
-  Future<bool>undo() async {
+  Future<bool> undo() async {
     return await _methodChannel.invokeMethod('undo');
   }
 
-  Future<bool>canRedo() async {
+  Future<bool> canRedo() async {
     return await _methodChannel.invokeMethod('canRedo');
   }
 
-  Future<bool>redo() async {
+  Future<bool> redo() async {
     return await _methodChannel.invokeMethod('redo');
   }
 

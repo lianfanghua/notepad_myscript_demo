@@ -10,8 +10,8 @@ class EditorView extends StatefulWidget {
   final PlatformViewCreatedCallback onDisposed;
 
   EditorView({
-    @required this.onCreated,
-    @required this.onDisposed,
+    this.onCreated,
+    this.onDisposed,
   });
 
   @override

@@ -104,7 +104,7 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
                 }
             }
             "exportJIIX" -> {
-                this.editor.part.`package`.save()
+                this.editor?.part?.`package`?.save()
                 try {
                     val jiix = this.editor.export_(null, MimeType.JIIX)
                     mainThreadHandler.post { result.success(jiix) }
@@ -114,7 +114,7 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
             }
             "exportPNG" -> {
                 Thread {
-                    val background = methodCall.argument<ByteArray>("gifPathName")
+                    val background = methodCall.argument<ByteArray>("skinBytes")
                     val imageBytes = editor.createImage(_displayViewSize().width, _displayViewSize().height, background)
                     mainThreadHandler.post { result.success(imageBytes) }
                 }.start()
@@ -136,44 +136,30 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
             }
             "clear" -> {
                 this.editor.clear()
-                var contentPackage = this.editor.part.`package`
-                contentPackage.removePart(this.editor.part)
-                contentPackage.createPart("Text")
-                this.editor.part = contentPackage.getPart(0)
-                contentPackage.save()
+                this.editor?.part?.`package`?.save()
                 mainThreadHandler.post { result.success(null) }
             }
             "canUndo" -> {
                 mainThreadHandler.post {
-                    if (!this.editor.isClosed) {
-                        this.editor.canUndo()
-                    }
+                    result.success(this.editor?.canUndo())
                 }
             }
             "undo" -> {
-                mainThreadHandler.post {
-                    if (!this.editor.isClosed) {
-                        if (this.editor.canUndo()) {
-                            this.editor.undo()
-                        }
-                        result.success(this.editor.canUndo())
-                    }
+                if (this.editor?.canUndo()) {
+                    this.editor?.undo()
                 }
+                mainThreadHandler.post { result.success(null) }
             }
             "canRedo" -> {
                 mainThreadHandler.post {
-                    if (!this.editor.isClosed) {
-                        this.editor.canRedo()
-                    }
+                    result.success(this.editor?.canRedo())
                 }
             }
             "redo" -> {
-                if (!this.editor.isClosed) {
-                    if (this.editor.canRedo()) {
-                        this.editor.redo()
-                    }
-                    result.success(this.editor.canRedo())
+                if (this.editor?.canRedo()) {
+                    this.editor?.redo()
                 }
+                mainThreadHandler.post { result.success(null) }
             }
             "waitForIdle" -> {
                 this.editor.waitForIdle()
@@ -208,18 +194,18 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
 
         when (eventType) {
             "down" -> {
-                this.editor.pointerDown(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
+                this.editor?.pointerDown(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
             }
             "move" -> {
-                this.editor.pointerMove(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
+                this.editor?.pointerMove(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
             }
             "up" -> {
-                this.editor.pointerUp(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
-                this.editor.part.`package`.save()
+                this.editor?.pointerUp(x.toFloat(), y.toFloat(), t.toLong(), f.toFloat(), formatWithPointerType(pointerType), pointerId)
+                this.editor?.part?.`package`?.save()
                 Log.d(TAG, "this.editor.part.`package`.save()")
             }
             "cancel" -> {
-                this.editor.pointerCancel(pointerId)
+                this.editor?.pointerCancel(pointerId)
             }
         }
     }
@@ -249,12 +235,12 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
                 }
             }
         }
+        Log.d(TAG, "onMethodCall1 ${pointerEventList.count()}")
         if (!editor.isClosed) {
+            Log.d(TAG, "onMethodCall2 ${pointerEventList.count()}")
             editor.pointerEvents(pointerEventList.toTypedArray(), false)
             if (this.editor.part != null) {
-                if (!this.editor.part.`package`.isClosed) {
-                    this.editor.part.`package`.save()
-                }
+                this.editor.part.`package`.save()
             }
         }
     }
@@ -308,7 +294,7 @@ class EditorController(messenger: BinaryMessenger, channelName: String) : Method
 }
 
 private fun Editor.createImage(width: Int, height: Int, background: ByteArray?): ByteArray {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
     val sysCanvas = android.graphics.Canvas(bitmap)
     background?.let {
         var oldBitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
