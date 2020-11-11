@@ -19,6 +19,10 @@ class MyscriptIink {
     await _channel.invokeMethod('closeEditorControllerChannel', {'channelName': channelName});
   }
 
+  static Future<void> deletePackage(String path) async {
+    await _channel.invokeMethod('deletePackage', {'path': path});
+  }
+
   static Future<void> setEngineConfiguration_Language(String lang) async {
     await _channel.invokeMethod('setEngineConfiguration_Language', {'lang': lang});
   }

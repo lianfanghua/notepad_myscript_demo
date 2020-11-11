@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:myscript_iink/EditorController.dart';
+import 'package:myscript_iink/myscript_iink.dart';
 import 'package:notepad_myscript_demo/util/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:notepad_myscript_demo/HandleMyscript/ConfigMyscriptEngine.dart';
@@ -103,7 +104,9 @@ class _HomePageState extends State<HomePage> {
                 return;
               }
               try {
-                var filePath = await NewFilePath();
+                var directory = await getApplicationDocumentsDirectory();
+                var filePath = '${directory.path}/1111.pts';
+//                var filePath = await NewFilePath();
                 Toast.toast(
                   context,
                   msg: 'filePath = $filePath',
@@ -126,6 +129,7 @@ class _HomePageState extends State<HomePage> {
                   msg: 'newController.exportText()',
                 );
                 await newController.clear();
+                await newController.close();
                 Toast.toast(
                   context,
                   msg: 'newController.clear()',
@@ -175,8 +179,7 @@ class _HomePageState extends State<HomePage> {
         trailing: deleteFileSwich ? Icon(Icons.delete_forever) : null,
         onTap: () async {
           if (deleteFileSwich) {
-            File file = await File(ptsList[index].path);
-            await file.deleteSync(recursive: true);
+            await MyscriptIink.deletePackage(ptsList[index].path);
             await _requestListDocumentsDirectory();
           } else {
             if (!isInitMyscriptSuccess) {

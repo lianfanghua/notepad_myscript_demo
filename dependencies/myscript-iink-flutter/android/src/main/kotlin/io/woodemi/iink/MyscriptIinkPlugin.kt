@@ -85,6 +85,22 @@ class MyscriptIinkPlugin: MethodCallHandler {
                 closeChannel(channelName)
                 result.success(null)
             }
+            "deletePackage" -> {
+                val path = call.argument<String>("path")
+                //  主动close
+                Log.d("deletePackage", "close contentPackage")
+                val contentPackage = MyscriptIinkPlugin.engine.openPackage(path)
+                contentPackage.close();
+                if (contentPackage.isClosed) {
+                    Log.d("deletePackage", "close contentPackage true")
+                } else {
+                    Log.d("deletePackage", "close contentPackage false")
+                }
+
+                //  再delete
+                MyscriptIinkPlugin.engine.deletePackage(path)
+                mainThreadHandler.post { result.success(null) }
+            }
             "setEngineConfiguration_Language" -> {
                 val lang = call.argument<String>("lang")
                 engine.configuration.setString("lang", lang)
